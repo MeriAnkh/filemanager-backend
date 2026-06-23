@@ -80,6 +80,21 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- PDFBox : extraction texte PDF natif -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+
+        <!-- OpenCSV : parsing CSV -->
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.9</version>
+        </dependency>
+
+
         <!-- Tests -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

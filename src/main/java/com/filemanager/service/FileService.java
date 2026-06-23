@@ -57,7 +57,7 @@ public class FileService {
      */
     @Transactional
     public FileResponse uploadFile(MultipartFile file, User owner) {
-        validatePdf(file);
+        validateFile(file);
 
         String storedName = UUID.randomUUID() + ".pdf";
         Path destination = uploadPath.resolve(storedName);
@@ -186,30 +186,37 @@ public class FileService {
         }
     }
 
-    private void validatePdf(MultipartFile file) {
+    private void validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new InvalidFileException("Le fichier est vide");
         }
 
         String originalName = file.getOriginalFilename();
-        if (originalName == null || !originalName.toLowerCase().endsWith(".pdf")) {
-            throw new InvalidFileException("Seuls les fichiers PDF sont acceptés");
-        }
+        if (originalName == null) throw new InvalidFileException("Nom de fichier manquant");
 
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.equals("application/pdf")) {
-            throw new InvalidFileException("Le type MIME doit être application/pdf");
-        }
+        String nameLower = originalName.toLowerCase();
 
-        // Vérification magic bytes %PDF-
-        try {
-            byte[] header = new byte[5];
-            int read = file.getInputStream().read(header);
-            if (read < 5 || !new String(header).equals("%PDF-")) {
-                throw new InvalidFileException("Le contenu du fichier n'est pas un PDF valide");
+        if (nameLower.endsWith(".pdf")) {
+            // Vérifie magic bytes %PDF-
+            try {
+                byte[] header = new byte[5];
+                int read = file.getInputStream().read(header);
+                if (read < 5 || !new String(header).equals("%PDF-")) {
+                    throw new InvalidFileException("Contenu PDF invalide");
+                }
+            } catch (java.io.IOException e) {
+                throw new InvalidFileException("Impossible de lire le fichier");
             }
-        } catch (IOException e) {
-            throw new InvalidFileException("Impossible de lire le fichier");
+        } else if (nameLower.endsWith(".csv")) {
+            String contentType = file.getContentType();
+            if (contentType != null &&
+                    !contentType.contains("csv") &&
+                    !contentType.contains("text") &&
+                    !contentType.contains("octet-stream")) {
+                throw new InvalidFileException("Type MIME CSV invalide : " + contentType);
+            }
+        } else {
+            throw new InvalidFileException("Seuls les fichiers PDF et CSV sont acceptés");
         }
     }
 
