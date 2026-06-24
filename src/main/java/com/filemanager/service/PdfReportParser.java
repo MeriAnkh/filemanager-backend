@@ -64,7 +64,7 @@ public class PdfReportParser {
      */
     private static final Pattern VOLUME_PATTERN =
             Pattern.compile(
-                    "Volume\\s*:?\\s*([\\d\\s.,]+)",
+                    "Volume\\s*:?\\s*([^|\\r\\n]+)",
                     Pattern.CASE_INSENSITIVE
             );
 
@@ -224,31 +224,26 @@ public class PdfReportParser {
     }
 
     private BigDecimal parseMontant(String raw) {
-
         if (raw == null || raw.isBlank()) {
             return BigDecimal.ZERO;
         }
 
+        // Nettoyage absolu : on supprime TOUT ([^...]) sauf les chiffres (\\d), les points (.) et les virgules (,)
         String clean = raw
-                .replaceAll("[\\s\\u00A0]", "")
+                .replaceAll("[^\\d.,]", "")
                 .replace(",", ".");
 
         int lastDot = clean.lastIndexOf('.');
-
         if (lastDot >= 0) {
-
-            clean =
-                    clean.substring(0, lastDot).replace(".", "")
-                            + "."
-                            + clean.substring(lastDot + 1);
+            clean = clean.substring(0, lastDot).replace(".", "")
+                    + "."
+                    + clean.substring(lastDot + 1);
         }
 
         try {
             return new BigDecimal(clean);
         } catch (Exception e) {
-
             log.warn("Montant non reconnu : {}", raw);
-
             return BigDecimal.ZERO;
         }
     }
