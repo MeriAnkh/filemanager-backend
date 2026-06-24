@@ -86,9 +86,9 @@ public class PdfReportParser {
     private static final Pattern TRANSACTION_PATTERN =
             Pattern.compile(
                     "(\\d+)\\s+" +                    // 1. Référence
-                            "([A-Za-zÀ-ÿ\\s]+?)\\s+" +        // 2. Pays (plus flexible)
-                            "(\\d{2}/\\d{2}/\\d{4})\\s+" +    // 3. Date
-                            "(\\d{1,2}:\\d{2}[AP]M)\\s+" +    // 4. Heure
+                            "([A-Za-zÀ-ÿ\\s]+?)\\s+" +        // 2. Pays
+                            "(\\d{2}/\\d{2}/\\d{4})\\s*" +    // 3. Date (Espaces facultatifs après)
+                            "(\\d{1,2}:\\d{2}[AP]M)?\\s*" +   // 4. Heure (Rendue OPTIONNELLE avec le '?')
                             "([A-Z0-9]+)\\s+" +               // 5. Opérateur
                             "([\\d\\s.,]+)\\s+" +             // 6. Montant
                             "([A-Z]{3})\\s+" +                // 7. Devise
